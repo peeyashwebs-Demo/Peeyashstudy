@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # PeeyashStudy — Setup Guide
 
 This is your real, working codebase: Next.js + Supabase + Gemini + Paystack, built exactly to the framework we planned. Everything below is what YOU need to go get, in order. Nothing here needs you to write code — just create accounts, copy keys, and paste.
@@ -47,6 +46,18 @@ You'll need [Node.js](https://nodejs.org) installed (get the LTS version) and a 
    - **Redirect URLs:** add `https://peeyashstudy.vercel.app/auth/callback` (use your real domain)
    This is what makes the "confirm your email" link take students to a clean PeeyashStudy login page instead of a generic Supabase page.
 8. **For profile photos (Settings page):** go to **Storage** (left sidebar) → **Create a new bucket** → name it exactly `avatars` → toggle **Public bucket** ON → Create. This lets students upload a profile photo from Settings.
+9. **Critical — without this step, uploads will fail even though the bucket exists:** go to **SQL Editor** → New query → paste and run just this part of `schema.sql` (it's at the very bottom of the file, under "STORAGE POLICIES"):
+   ```sql
+   create policy "Avatar images are publicly readable"
+     on storage.objects for select using (bucket_id = 'avatars');
+   create policy "Users can upload their own avatar"
+     on storage.objects for insert with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+   create policy "Users can update their own avatar"
+     on storage.objects for update using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+   create policy "Users can delete their own avatar"
+     on storage.objects for delete using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+   ```
+   "Public bucket" only controls who can *view* photos — these policies are what actually allow a logged-in student to *upload* one. This is almost certainly why you saw a "can't fetch bucket" style error.
 9. **If your schema.sql already ran before this update:** go to SQL Editor → run:
    ```sql
    alter table profiles add column if not exists avatar_url text;
@@ -122,6 +133,3 @@ Nothing else is required from you to launch — everything else in the framework
 - **Paystack webhook not firing:** confirm the webhook URL in Paystack settings exactly matches `https://YOUR-DOMAIN/api/paystack/webhook`.
 
 Send me any error message you get — paste it here and I'll fix it with you.
-=======
-Coming... Soon....
->>>>>>> f8d3a9def91aaffeec3e7bf639793ef3997175f3

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import { createClient } from "@/lib/supabase/client";
 import { Skel } from "@/components/Skeleton";
+import ShareBadge from "@/components/ShareBadge";
 
 export default function Practice() {
   const [uploads, setUploads] = useState([]);
@@ -46,9 +47,13 @@ export default function Practice() {
 
   async function submit() {
     setSubmitted(true);
+    const perQuestion = quiz.questions.map((q, i) => ({
+      concept: q.concept || "General",
+      correct: answers[i] === q.answer
+    }));
     await fetch("/api/quiz/attempt", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cacheKey: activeKey, score: score(), total: quiz.questions.length })
+      body: JSON.stringify({ cacheKey: activeKey, score: score(), total: quiz.questions.length, perQuestion })
     });
   }
 
@@ -113,7 +118,15 @@ export default function Practice() {
             {!submitted ? (
               <button onClick={submit} className="bg-ink text-paper px-6 py-3 rounded-full text-sm font-medium hover:bg-biro transition-colors">Submit answers</button>
             ) : (
-              <p className="font-display text-xl">You scored {score()} / {quiz.questions.length}</p>
+              <>
+                <p className="font-display text-xl mb-4">You scored {score()} / {quiz.questions.length}</p>
+                {score() / quiz.questions.length >= 0.7 && (
+                  <ShareBadge
+                    headline={`I scored ${score()}/${quiz.questions.length} on my practice quiz`}
+                    subtext="Studying smarter with PeeyashStudy 🎓"
+                  />
+                )}
+              </>
             )}
           </div>
         )}

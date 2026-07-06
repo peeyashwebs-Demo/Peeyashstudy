@@ -6,6 +6,9 @@
 -- MIGRATION (run this if your schema.sql above already ran once before):
 -- alter table profiles add column if not exists avatar_url text;
 -- alter table document_cache add column if not exists worked_example jsonb;
+-- (then run the CREATE TABLE blocks below for: deadlines, quiz_answers, study_rooms,
+--  room_members — plus their RLS policies near the bottom of this file — since those
+--  are brand new tables that won't exist yet on an already-initialized project)
 
 -- PROFILES ----------------------------------------------------
 create table if not exists profiles (
@@ -95,6 +98,43 @@ create table if not exists withdrawals (
   created_at timestamptz default now()
 );
 
+-- DEADLINES ----------------------------------------------------
+create table if not exists deadlines (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  title text not null,
+  course_code text,
+  due_date timestamptz not null,
+  created_at timestamptz default now()
+);
+
+-- QUIZ ANSWERS (per-question detail, powers "you keep missing X" aggregation) --
+create table if not exists quiz_answers (
+  id uuid primary key default gen_random_uuid(),
+  attempt_id uuid references quiz_attempts(id) on delete cascade,
+  user_id uuid references profiles(id) on delete cascade,
+  concept text,
+  correct boolean,
+  created_at timestamptz default now()
+);
+
+-- STUDY ROOMS ----------------------------------------------------
+create table if not exists study_rooms (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  course_code text,
+  invite_code text unique not null,
+  created_by uuid references profiles(id),
+  created_at timestamptz default now()
+);
+
+create table if not exists room_members (
+  room_id uuid references study_rooms(id) on delete cascade,
+  user_id uuid references profiles(id) on delete cascade,
+  joined_at timestamptz default now(),
+  primary key (room_id, user_id)
+);
+
 -- FEEDBACK ----------------------------------------------------
 create table if not exists feedback (
   id uuid primary key default gen_random_uuid(),
@@ -167,6 +207,10 @@ alter table referrals enable row level security;
 alter table withdrawals enable row level security;
 alter table feedback enable row level security;
 alter table usage enable row level security;
+alter table deadlines enable row level security;
+alter table quiz_answers enable row level security;
+alter table study_rooms enable row level security;
+alter table room_members enable row level security;
 
 create policy "own profile read" on profiles for select using (auth.uid() = id);
 create policy "own profile update" on profiles for update using (auth.uid() = id);
@@ -190,3 +234,43 @@ create policy "own feedback insert" on feedback for insert with check (auth.uid(
 create policy "own feedback read" on feedback for select using (auth.uid() = user_id);
 
 -- usage table: no client policies (server/service role only)
+
+create policy "own deadlines read" on deadlines for select using (auth.uid() = user_id);
+create policy "own deadlines insert" on deadlines for insert with check (auth.uid() = user_id);
+create policy "own deadlines delete" on deadlines for delete using (auth.uid() = user_id);
+
+create policy "own quiz answers read" on quiz_answers for select using (auth.uid() = user_id);
+create policy "own quiz answers insert" on quiz_answers for insert with check (auth.uid() = user_id);
+-- cross-member aggregation for study rooms is done server-side with the service role key,
+-- so no additional cross-user policy is needed here — individual answers stay private by default.
+
+create policy "rooms are viewable by any signed-in user" on study_rooms for select using (auth.role() = 'authenticated');
+create policy "users can create rooms" on study_rooms for insert with check (auth.uid() = created_by);
+
+create policy "members can view their own rooms roster" on room_members for select using (
+  room_id in (select room_id from room_members where user_id = auth.uid())
+);
+create policy "users can join rooms as themselves" on room_members for insert with check (auth.uid() = user_id);
+create policy "users can leave rooms" on room_members for delete using (auth.uid() = user_id);
+
+-- ============================================================
+-- STORAGE POLICIES for the 'avatars' bucket
+-- Run this AFTER creating the 'avatars' bucket in Supabase Dashboard > Storage.
+-- Without these, uploads will fail even if the bucket exists and is marked "Public".
+-- "Public" only controls read access — write access needs these policies.
+-- ============================================================
+create policy "Avatar images are publicly readable"
+  on storage.objects for select
+  using (bucket_id = 'avatars');
+
+create policy "Users can upload their own avatar"
+  on storage.objects for insert
+  with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "Users can update their own avatar"
+  on storage.objects for update
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "Users can delete their own avatar"
+  on storage.objects for delete
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);

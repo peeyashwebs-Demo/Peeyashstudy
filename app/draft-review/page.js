@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Nav from "@/components/Nav";
+import ShareBadge from "@/components/ShareBadge";
 
 export default function DraftReview() {
   const [assignmentText, setAssignmentText] = useState("");
@@ -171,6 +172,12 @@ export default function DraftReview() {
                   {evaluation.next_steps.map((s, i) => <li key={i}>{s}</li>)}
                 </ul>
               </div>
+            )}
+            {evaluation.understanding_score >= 7 && (
+              <ShareBadge
+                headline={`I defended my draft — ${evaluation.understanding_score}/10 understanding`}
+                subtext="Learning it properly with PeeyashStudy 🎓"
+              />
             )}
           </div>
         )}

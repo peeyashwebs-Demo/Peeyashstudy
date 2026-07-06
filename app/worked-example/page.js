@@ -90,20 +90,45 @@ function WorkedExampleContent() {
         {example && (
           <div className="space-y-6">
             <div className="bg-biro/5 border border-biro/20 rounded-2xl p-5">
-              <p className="font-mono text-xs uppercase text-biro mb-2">A different question, same method</p>
-              <p className="font-medium leading-relaxed">{example.sibling_question}</p>
-              <p className="text-xs text-ink/50 mt-3">Theory anchor: {example.theory_anchor}</p>
+              <p className="font-mono text-xs uppercase tracking-wide text-biro mb-3">A different question, same method</p>
+              <p className="text-sm leading-relaxed text-ink/85 mb-4">{example.scenario}</p>
+
+              {example.requirements?.length > 0 && (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-ink/50 mb-2">Your plan must cover</p>
+                  <ul className="space-y-1.5 mb-1">
+                    {example.requirements.map((r, i) => (
+                      <li key={i} className="flex gap-2 text-sm text-ink/80">
+                        <span className="text-biro font-medium shrink-0">{i + 1}.</span>
+                        <span>{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+              <div className="mt-4 pt-3 border-t border-biro/20">
+                <p className="text-xs text-ink/50">Theory anchor: <span className="font-medium text-ink/70">{example.theory_anchor}</span></p>
+              </div>
             </div>
 
-            {example.worked_answer_sections?.map((s, i) => (
-              <div key={i} className="border border-line rounded-2xl p-5">
-                <p className="font-display text-lg font-semibold mb-2">{s.heading}</p>
-                <p className="text-sm text-ink/80 leading-relaxed whitespace-pre-line">{s.content}</p>
+            <div>
+              <p className="font-mono text-xs uppercase tracking-wide text-ink/40 mb-3">Model answer, worked step by step</p>
+              <div className="space-y-4">
+                {example.worked_answer_sections?.map((s, i) => (
+                  <div key={i} className="border border-line rounded-2xl p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-6 h-6 rounded-full bg-ink text-paper text-xs font-mono flex items-center justify-center shrink-0">{i + 1}</span>
+                      <p className="font-display text-lg font-semibold">{s.heading}</p>
+                    </div>
+                    <p className="text-sm text-ink/80 leading-relaxed whitespace-pre-line">{s.content}</p>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
 
             {example.teaching_notes && (
-              <p className="text-sm bg-high/30 border border-high rounded-xl p-4">💡 {example.teaching_notes}</p>
+              <p className="text-sm bg-high/30 border border-high rounded-xl p-4 leading-relaxed">💡 {example.teaching_notes}</p>
             )}
 
             <button onClick={() => { setExample(null); setActiveKey(null); }}

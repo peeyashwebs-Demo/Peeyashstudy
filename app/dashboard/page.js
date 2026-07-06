@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Nav from "@/components/Nav";
 import PaymentVerifier from "@/components/PaymentVerifier";
+import DeadlineCountdown from "@/components/DeadlineCountdown";
 import { isPremium } from "@/lib/usage";
 
 export default async function Dashboard() {
@@ -36,7 +37,9 @@ export default async function Dashboard() {
           </Suspense>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mt-8">
+        <DeadlineCountdown />
+
+        <div className="grid md:grid-cols-3 gap-4 mt-2">
           <Link href="/wallet" className="border border-line rounded-2xl p-5 hover:border-biro transition-colors">
             <p className="text-xs font-mono uppercase text-ink/50 mb-1">Wallet</p>
             <p className="font-display text-2xl font-semibold">₦{((wallet?.balance_kobo || 0) / 100).toLocaleString()}</p>
@@ -56,6 +59,7 @@ export default async function Dashboard() {
           <Link href="/worked-example" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Worked example</Link>
           <Link href="/practice" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Practice quiz</Link>
           <Link href="/refer" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Invite &amp; earn</Link>
+          <Link href="/rooms" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Study rooms</Link>
         </div>
 
         <div className="mt-10">

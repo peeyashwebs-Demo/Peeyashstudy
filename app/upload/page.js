@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import Nav from "@/components/Nav";
+import ExplainBack from "@/components/ExplainBack";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
@@ -64,9 +65,10 @@ export default function UploadPage() {
                   ))}
                 </div>
                 <p className="text-sm font-medium mb-1">Suggested structure:</p>
-                <ul className="text-sm text-ink/70 list-disc list-inside space-y-0.5">
+                <ul className="text-sm text-ink/70 list-disc list-inside space-y-0.5 mb-3">
                   {q.answer_structure?.map((s, j) => <li key={j}>{s}</li>)}
                 </ul>
+                <ExplainBack concept={(q.key_concepts || []).join(", ")} question={q.question} />
               </div>
             ))}
             {result.study_tip && (

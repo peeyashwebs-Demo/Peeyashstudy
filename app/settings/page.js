@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { createClient } from "@/lib/supabase/client";
 import { Skel } from "@/components/Skeleton";
 
 export default function Settings() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [name, setName] = useState("");
@@ -12,6 +14,9 @@ export default function Settings() {
   const [newPassword, setNewPassword] = useState("");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileRef = useRef(null);
 
   useEffect(() => {
@@ -66,7 +71,13 @@ export default function Settings() {
     const path = `${user.id}/avatar.${ext}`;
 
     const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
-    if (uploadError) { setAvatarUploading(false); return flash("error", "Upload failed: " + uploadError.message); }
+    if (uploadError) {
+      setAvatarUploading(false);
+      const hint = uploadError.message?.toLowerCase().includes("bucket")
+        ? "The 'avatars' storage bucket hasn't been created yet in Supabase — see setup guide."
+        : uploadError.message;
+      return flash("error", "Upload failed: " + hint);
+    }
 
     const { data: publicUrlData } = supabase.storage.from("avatars").getPublicUrl(path);
     const avatar_url = `${publicUrlData.publicUrl}?t=${Date.now()}`; // cache-bust so the new photo shows immediately
@@ -77,6 +88,25 @@ export default function Settings() {
 
     setProfile((p) => ({ ...p, avatar_url }));
     flash("success", "Photo updated.");
+  }
+
+  async function logout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
+
+  async function deleteAccount() {
+    setDeleting(true);
+    const res = await fetch("/api/account/delete", { method: "POST" });
+    const data = await res.json();
+    if (!res.ok) {
+      setDeleting(false);
+      return flash("error", data.error || "Something went wrong.");
+    }
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
   }
 
   if (loading) {
@@ -157,9 +187,45 @@ export default function Settings() {
         </form>
 
         {/* Read-only info */}
-        <div className="border border-line rounded-2xl p-5 text-sm text-ink/60">
+        <div className="border border-line rounded-2xl p-5 text-sm text-ink/60 mb-8">
           <p>School: <span className="text-ink font-medium">{profile?.school || "MIVA"}</span></p>
           <p className="mt-1">Referral code: <span className="text-ink font-medium font-mono">{profile?.referral_code}</span></p>
+        </div>
+
+        {/* Logout */}
+        <button onClick={logout}
+          className="w-full border border-line rounded-full py-3 text-sm font-medium hover:border-ink transition-colors mb-8">
+          Log out
+        </button>
+
+        {/* Delete account — deliberately separated and harder to trigger */}
+        <div className="border border-red-200 rounded-2xl p-5">
+          <p className="text-sm font-medium text-red-700 mb-1">Delete account</p>
+          <p className="text-xs text-ink/50 mb-3">
+            This permanently deletes your account, uploads, wallet balance, and history.
+            This cannot be undone.
+          </p>
+          {!showDeleteConfirm ? (
+            <button onClick={() => setShowDeleteConfirm(true)}
+              className="text-sm text-red-700 border border-red-200 rounded-full px-4 py-2 hover:bg-red-50 transition-colors">
+              Delete my account
+            </button>
+          ) : (
+            <div>
+              <p className="text-xs text-ink/60 mb-2">Type <span className="font-mono font-semibold">DELETE</span> to confirm.</p>
+              <div className="flex gap-2">
+                <input value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  className="flex-1 border border-red-200 rounded-lg px-3 py-2 text-base sm:text-sm focus-ring" />
+                <button onClick={deleteAccount} disabled={deleteConfirmText !== "DELETE" || deleting}
+                  className="bg-red-600 text-paper px-4 rounded-lg text-sm font-medium disabled:opacity-40 hover:bg-red-700 transition-colors">
+                  {deleting ? "Deleting…" : "Confirm delete"}
+                </button>
+              </div>
+              <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
+                className="text-xs text-ink/40 underline mt-2">Cancel</button>
+            </div>
+          )}
         </div>
       </main>
     </>
