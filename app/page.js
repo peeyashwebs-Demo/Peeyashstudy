@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Nav from "@/components/Nav";
+import Naira from "@/components/Naira";
 
 export default function Home() {
   return (
@@ -7,18 +8,18 @@ export default function Home() {
       <Nav authed={false} />
       <main>
         {/* HERO */}
-        <section className="max-w-5xl mx-auto px-5 pt-16 pb-20 md:pt-24 md:pb-28">
+        <section className="max-w-5xl mx-auto px-6 sm:px-5 pt-14 pb-16 md:pt-24 md:pb-28">
           <p className="font-mono text-xs tracking-widest uppercase text-biro mb-5">For MIVA &amp; NOUN students</p>
-          <h1 className="font-display text-4xl md:text-6xl font-semibold leading-[1.05] max-w-3xl">
+          <h1 className="font-display text-[2.15rem] leading-[1.2] md:text-6xl md:leading-[1.05] font-semibold max-w-3xl">
             Your TMA lands in your inbox.<br />Understanding it shouldn't take a week.
           </h1>
-          <p className="mt-6 text-lg text-ink/70 max-w-xl leading-relaxed">
+          <p className="mt-6 text-base sm:text-lg text-ink/70 max-w-xl leading-relaxed">
             Upload the PDF. PeeyashStudy breaks down exactly what each question is asking,
             teaches you the concepts, drills you with a quiz, and reviews the answer <em>you</em> write —
             in about the time it takes to finish a plate of rice.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <Link href="/signup" className="bg-ink text-paper px-7 py-3.5 rounded-full font-medium hover:bg-biro transition-colors focus-ring">
+          <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
+            <Link href="/signup" className="bg-ink text-paper px-7 py-3.5 rounded-full font-medium text-center hover:bg-biro transition-colors focus-ring">
               Start free — 3 uploads/month
             </Link>
             <Link href="/integrity" className="text-sm underline decoration-line underline-offset-4 hover:text-biro">
@@ -59,7 +60,7 @@ export default function Home() {
               <p className="font-mono text-xs tracking-widest uppercase text-biro mb-4">Refer your course group</p>
               <h2 className="font-display text-3xl font-semibold mb-4">Five paid referrals covers your subscription.</h2>
               <p className="text-ink/70 leading-relaxed">
-                Share your link. When someone you invite subscribes, ₦1,500 lands in your wallet.
+                Share your link. When someone you invite subscribes, <Naira amount="1,500" /> lands in your wallet.
                 Hit five and you've covered a full month — auto-renew it, or withdraw straight to
                 your bank or OPay.
               </p>
@@ -71,40 +72,48 @@ export default function Home() {
               <div className="h-2 bg-line rounded-full overflow-hidden">
                 <div className="h-full bg-biro rounded-full" style={{ width: "60%" }} />
               </div>
-              <p className="mt-4 text-sm text-ink/60">₦4,500 earned this month</p>
+              <p className="mt-4 text-sm text-ink/60"><Naira amount="4,500" /> earned this month</p>
             </div>
           </div>
         </section>
 
         {/* PRICING */}
         <section className="border-t border-line">
-          <div className="max-w-5xl mx-auto px-5 py-16 md:py-20 grid md:grid-cols-2 gap-6">
-            <div className="border border-line rounded-2xl p-7">
+          <div className="max-w-5xl mx-auto px-6 sm:px-5 py-14 md:py-20 grid md:grid-cols-2 gap-5 md:gap-6">
+            <div className="border border-line rounded-2xl p-6 sm:p-7">
               <p className="font-mono text-xs uppercase text-ink/50 mb-2">Free</p>
-              <p className="font-display text-3xl font-semibold mb-4">₦0</p>
-              <ul className="text-sm text-ink/70 space-y-2 mb-6">
+              <p className="font-display text-3xl font-semibold mb-5"><Naira amount={0} /></p>
+              <ul className="text-sm text-ink/70 space-y-3 mb-7 leading-relaxed">
                 <li>3 assignment breakdowns / month</li>
                 <li>2 quizzes / month</li>
                 <li>5 chat messages / day</li>
               </ul>
-              <Link href="/signup" className="block text-center border border-ink rounded-full py-2.5 text-sm font-medium hover:bg-ink hover:text-paper transition-colors">Start free</Link>
+              <Link href="/signup" className="block text-center border border-ink rounded-full py-3 text-sm font-medium hover:bg-ink hover:text-paper transition-colors">Start free</Link>
             </div>
-            <div className="border-2 border-ink rounded-2xl p-7 bg-ink text-paper relative overflow-hidden">
+            <div className="border-2 border-ink rounded-2xl p-6 sm:p-7 bg-ink text-paper relative overflow-hidden">
               <p className="font-mono text-xs uppercase text-high mb-2">Premium</p>
-              <p className="font-display text-3xl font-semibold mb-4">₦5,000<span className="text-base font-normal text-paper/60">/month</span></p>
-              <ul className="text-sm text-paper/80 space-y-2 mb-6">
+              <p className="font-display text-3xl font-semibold mb-5"><Naira amount="5,000" /><span className="text-base font-normal text-paper/60">/month</span></p>
+              <ul className="text-sm text-paper/80 space-y-3 mb-7 leading-relaxed">
                 <li>Unlimited breakdowns &amp; quizzes</li>
                 <li>Unlimited course chat</li>
                 <li>Draft review</li>
-                <li>Or pay ₦0 — cover it with 5 referrals</li>
+                <li>Or pay <Naira amount={0} /> — cover it with 5 referrals</li>
               </ul>
-              <Link href="/signup" className="block text-center bg-paper text-ink rounded-full py-2.5 text-sm font-medium hover:bg-high transition-colors">Go premium</Link>
+              <Link href="/signup" className="block text-center bg-paper text-ink rounded-full py-3 text-sm font-medium hover:bg-high transition-colors">Go premium</Link>
             </div>
           </div>
         </section>
 
-        <footer className="border-t border-line py-8 text-center text-xs text-ink/50 font-mono">
-          PeeyashStudy — a Peeyashwebs product · <Link href="/integrity" className="underline">Academic Integrity</Link>
+        <footer className="border-t border-line py-10 px-6">
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-center">
+            <p className="text-sm text-ink/60 leading-relaxed">
+              PeeyashStudy — a Peeyashwebs product
+            </p>
+            <span className="hidden sm:inline text-ink/30">·</span>
+            <Link href="/integrity" className="text-sm text-ink/60 underline decoration-line underline-offset-4 hover:text-biro transition-colors">
+              Academic Integrity
+            </Link>
+          </div>
         </footer>
       </main>
     </>

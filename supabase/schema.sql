@@ -274,3 +274,6 @@ create policy "Users can update their own avatar"
 create policy "Users can delete their own avatar"
   on storage.objects for delete
   using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+-- NOTE: if you ever re-run this block and get a "policy already exists" error,
+-- run "drop policy if exists <policy name> on storage.objects;" before each
+-- create statement above, then re-run.

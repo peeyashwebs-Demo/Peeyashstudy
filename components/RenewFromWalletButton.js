@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Naira from "@/components/Naira";
 
 const PREMIUM_COST_KOBO = 500000; // ₦5,000
 
@@ -30,7 +31,7 @@ export default function RenewFromWalletButton({ balanceKobo, alreadyPremium }) {
       <p className="text-xs text-ink/50 mb-3">
         {ready
           ? "You have enough to cover a full month — no card needed."
-          : `₦${shortfall.toLocaleString()} more needed to cover a month (₦5,000 total).`}
+          : <><Naira amount={shortfall} /> more needed to cover a month (<Naira amount="5,000" /> total).</>}
       </p>
 
       <button
@@ -42,7 +43,7 @@ export default function RenewFromWalletButton({ balanceKobo, alreadyPremium }) {
             : "bg-line text-ink/40 cursor-not-allowed"
         }`}
       >
-        {loading ? "Activating…" : ready ? "Use ₦5,000 from wallet — activate now" : "Not enough balance yet"}
+        {loading ? "Activating…" : ready ? <>Use <Naira amount="5,000" /> from wallet — activate now</> : "Not enough balance yet"}
       </button>
 
       {!ready && (

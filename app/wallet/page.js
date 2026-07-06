@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Nav from "@/components/Nav";
 import WithdrawForm from "@/components/WithdrawForm";
 import UpgradeButton from "@/components/UpgradeButton";
+import Naira from "@/components/Naira";
 import RenewFromWalletButton from "@/components/RenewFromWalletButton";
 import { isPremium } from "@/lib/usage";
 
@@ -26,7 +27,7 @@ export default async function Wallet() {
 
         <div className="bg-ink text-paper rounded-2xl p-6 mb-6">
           <p className="text-xs font-mono uppercase text-paper/60">Balance</p>
-          <p className="font-display text-4xl font-semibold mt-1">₦{naira.toLocaleString()}</p>
+          <p className="font-display text-4xl font-semibold mt-1"><Naira amount={naira} /></p>
           <p className="text-sm text-paper/60 mt-2">{isPremium(profile) ? "Premium active" : "Free plan"}</p>
         </div>
 
@@ -44,7 +45,7 @@ export default async function Wallet() {
                 <li key={t.id} className="px-4 py-3 text-sm flex justify-between">
                   <span className="capitalize">{t.type.replaceAll("_", " ")}</span>
                   <span className={t.amount_kobo >= 0 ? "text-leaf" : "text-ink/60"}>
-                    {t.amount_kobo >= 0 ? "+" : ""}₦{(t.amount_kobo / 100).toLocaleString()}
+                    {t.amount_kobo >= 0 ? "+" : ""}<Naira amount={t.amount_kobo / 100} />
                   </span>
                 </li>
               ))}

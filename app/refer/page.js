@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Nav from "@/components/Nav";
 import ReferralLink from "@/components/ReferralLink";
+import Naira from "@/components/Naira";
 
 export default async function Refer() {
   const supabase = createClient();
@@ -20,7 +21,7 @@ export default async function Refer() {
       <Nav authed />
       <main className="max-w-2xl mx-auto px-5 py-10">
         <h1 className="font-display text-2xl font-semibold mb-2">Invite & earn</h1>
-        <p className="text-sm text-ink/60 mb-6">₦1,500 lands in your wallet the moment someone you invite subscribes. Five paid invites covers your own month.</p>
+        <p className="text-sm text-ink/60 mb-6"><Naira amount="1,500" /> lands in your wallet the moment someone you invite subscribes. Five paid invites covers your own month.</p>
 
         <ReferralLink link={link} code={profile.referral_code} />
 

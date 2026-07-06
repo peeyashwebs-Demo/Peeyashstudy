@@ -5,6 +5,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Nav from "@/components/Nav";
 import PaymentVerifier from "@/components/PaymentVerifier";
 import DeadlineCountdown from "@/components/DeadlineCountdown";
+import Naira from "@/components/Naira";
 import { isPremium } from "@/lib/usage";
 
 export default async function Dashboard() {
@@ -42,7 +43,7 @@ export default async function Dashboard() {
         <div className="grid md:grid-cols-3 gap-4 mt-2">
           <Link href="/wallet" className="border border-line rounded-2xl p-5 hover:border-biro transition-colors">
             <p className="text-xs font-mono uppercase text-ink/50 mb-1">Wallet</p>
-            <p className="font-display text-2xl font-semibold">₦{((wallet?.balance_kobo || 0) / 100).toLocaleString()}</p>
+            <p className="font-display text-2xl font-semibold"><Naira amount={(wallet?.balance_kobo || 0) / 100} /></p>
           </Link>
           <div className="border border-line rounded-2xl p-5">
             <p className="text-xs font-mono uppercase text-ink/50 mb-1">Paid referrals</p>

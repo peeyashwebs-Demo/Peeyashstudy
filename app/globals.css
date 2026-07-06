@@ -31,6 +31,13 @@ input, textarea, select {
 
 ::selection { background: #FFE34D; color: #15214B; }
 
+/* Forces a system font known to render ₦ cleanly, avoiding mid-line fallback
+   glitches from our custom webfonts (which only load the "latin" subset). */
+.font-currency {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
 .focus-ring:focus-visible {
   outline: 2px solid #2547D0;
   outline-offset: 2px;

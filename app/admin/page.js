@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Nav from "@/components/Nav";
 import PayoutButtons from "@/components/PayoutButtons";
+import Naira from "@/components/Naira";
 
 export default async function Admin() {
   const supabase = createClient();
@@ -25,7 +26,7 @@ export default async function Admin() {
           {pending?.length ? pending.map((w) => (
             <div key={w.id} className="border border-line rounded-xl p-4 text-sm">
               <div className="flex justify-between mb-2">
-                <span className="font-medium">₦{(w.amount_kobo / 100).toLocaleString()}</span>
+                <span className="font-medium"><Naira amount={w.amount_kobo / 100} /></span>
                 <span className="text-ink/50">{w.profiles?.full_name}</span>
               </div>
               <p className="text-ink/60 mb-3">{w.bank_name} · {w.account_number} · {w.account_name}</p>
