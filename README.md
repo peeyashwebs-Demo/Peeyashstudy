@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # PeeyashStudy — Setup Guide
 
 This is your real, working codebase: Next.js + Supabase + Gemini + Paystack, built exactly to the framework we planned. Everything below is what YOU need to go get, in order. Nothing here needs you to write code — just create accounts, copy keys, and paste.
@@ -121,3 +122,6 @@ Nothing else is required from you to launch — everything else in the framework
 - **Paystack webhook not firing:** confirm the webhook URL in Paystack settings exactly matches `https://YOUR-DOMAIN/api/paystack/webhook`.
 
 Send me any error message you get — paste it here and I'll fix it with you.
+=======
+Coming... Soon....
+>>>>>>> f8d3a9def91aaffeec3e7bf639793ef3997175f3
