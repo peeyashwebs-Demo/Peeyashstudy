@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Nav from "@/components/Nav";
 import WithdrawForm from "@/components/WithdrawForm";
 import UpgradeButton from "@/components/UpgradeButton";
+import RenewFromWalletButton from "@/components/RenewFromWalletButton";
 import { isPremium } from "@/lib/usage";
 
 export default async function Wallet() {
@@ -28,6 +29,8 @@ export default async function Wallet() {
           <p className="font-display text-4xl font-semibold mt-1">₦{naira.toLocaleString()}</p>
           <p className="text-sm text-paper/60 mt-2">{isPremium(profile) ? "Premium active" : "Free plan"}</p>
         </div>
+
+        <RenewFromWalletButton balanceKobo={wallet?.balance_kobo || 0} alreadyPremium={isPremium(profile)} />
 
         {!isPremium(profile) && <UpgradeButton />}
 

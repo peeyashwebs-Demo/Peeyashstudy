@@ -3,11 +3,16 @@
 -- Paste this entire file into: Supabase Dashboard > SQL Editor > Run
 -- ============================================================
 
+-- MIGRATION (run this if your schema.sql above already ran once before):
+-- alter table profiles add column if not exists avatar_url text;
+-- alter table document_cache add column if not exists worked_example jsonb;
+
 -- PROFILES ----------------------------------------------------
 create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
   email text,
+  avatar_url text,
   school text default 'MIVA',
   plan text default 'free',
   plan_expires_at timestamptz,
@@ -43,6 +48,7 @@ create table if not exists document_cache (
   extracted_text text,
   breakdown jsonb,
   quiz jsonb,
+  worked_example jsonb,
   hit_count int default 0,
   created_at timestamptz default now()
 );

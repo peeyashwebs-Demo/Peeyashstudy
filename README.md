@@ -45,6 +45,12 @@ You'll need [Node.js](https://nodejs.org) installed (get the LTS version) and a 
    - **Site URL:** your real Vercel URL, e.g. `https://peeyashstudy.vercel.app`
    - **Redirect URLs:** add `https://peeyashstudy.vercel.app/auth/callback` (use your real domain)
    This is what makes the "confirm your email" link take students to a clean PeeyashStudy login page instead of a generic Supabase page.
+8. **For profile photos (Settings page):** go to **Storage** (left sidebar) → **Create a new bucket** → name it exactly `avatars` → toggle **Public bucket** ON → Create. This lets students upload a profile photo from Settings.
+9. **If your schema.sql already ran before this update:** go to SQL Editor → run:
+   ```sql
+   alter table profiles add column if not exists avatar_url text;
+   ```
+   (If you're running the full schema.sql fresh on a brand new project, this column is already included — skip this step.)
 
 ---
 

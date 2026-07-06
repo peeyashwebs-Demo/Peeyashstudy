@@ -53,6 +53,7 @@ export default async function Dashboard() {
 
         <div className="mt-10 flex flex-wrap gap-3">
           <Link href="/upload" className="bg-ink text-paper px-5 py-3 rounded-full text-sm font-medium hover:bg-biro transition-colors">Upload an assignment</Link>
+          <Link href="/worked-example" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Worked example</Link>
           <Link href="/practice" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Practice quiz</Link>
           <Link href="/refer" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Invite &amp; earn</Link>
         </div>

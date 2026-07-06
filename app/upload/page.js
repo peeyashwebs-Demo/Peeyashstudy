@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import Nav from "@/components/Nav";
 
@@ -7,6 +8,7 @@ export default function UploadPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [result, setResult] = useState(null);
+  const [cacheKey, setCacheKey] = useState(null);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -19,6 +21,7 @@ export default function UploadPage() {
       const data = await res.json();
       if (!res.ok) { setErr(data.error || "Something went wrong."); return; }
       setResult(data.breakdown);
+      setCacheKey(data.cacheKey);
     } catch {
       setErr("Network error. Try again.");
     } finally {
@@ -68,6 +71,12 @@ export default function UploadPage() {
             ))}
             {result.study_tip && (
               <p className="text-sm bg-high/30 border border-high rounded-xl p-4">💡 {result.study_tip}</p>
+            )}
+            {cacheKey && (
+              <Link href={`/worked-example?key=${cacheKey}`}
+                className="block text-center bg-ink text-paper px-6 py-3 rounded-full text-sm font-medium hover:bg-biro transition-colors">
+                See a fully worked example on a similar question →
+              </Link>
             )}
           </div>
         )}

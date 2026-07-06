@@ -6,7 +6,7 @@ import FeedbackButton from "@/components/FeedbackButton";
 export default function Nav({ authed }) {
   const [open, setOpen] = useState(false);
   const links = authed
-    ? [["Dashboard", "/dashboard"], ["Upload", "/upload"], ["Practice", "/practice"], ["Wallet", "/wallet"]]
+    ? [["Dashboard", "/dashboard"], ["Upload", "/upload"], ["Practice", "/practice"], ["Wallet", "/wallet"], ["Settings", "/settings"]]
     : [["How it works", "/#how"], ["Integrity", "/integrity"], ["Log in", "/login"]];
   return (
     <>
