@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { createClient } from "@/lib/supabase/client";
 import { Skel } from "@/components/Skeleton";
+import PushOptIn from "@/components/PushOptIn";
 
 export default function Settings() {
   const router = useRouter();
@@ -174,6 +175,9 @@ export default function Settings() {
             <button className="bg-ink text-paper px-4 rounded-lg text-sm font-medium hover:bg-biro transition-colors">Save</button>
           </div>
         </form>
+
+        {/* Notifications */}
+        <PushOptIn />
 
         {/* Password */}
         <form onSubmit={savePassword} className="border border-line rounded-2xl p-5 mb-4">

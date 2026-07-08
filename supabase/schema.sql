@@ -6,9 +6,11 @@
 -- MIGRATION (run this if your schema.sql above already ran once before):
 -- alter table profiles add column if not exists avatar_url text;
 -- alter table document_cache add column if not exists worked_example jsonb;
+-- alter table deadlines add column if not exists reminded_at timestamptz;
 -- (then run the CREATE TABLE blocks below for: deadlines, quiz_answers, study_rooms,
---  room_members — plus their RLS policies near the bottom of this file — since those
---  are brand new tables that won't exist yet on an already-initialized project)
+--  room_members, push_subscriptions — plus their RLS policies near the bottom of
+--  this file — since those are brand new tables that won't exist yet on an
+--  already-initialized project)
 
 -- PROFILES ----------------------------------------------------
 create table if not exists profiles (
@@ -98,6 +100,15 @@ create table if not exists withdrawals (
   created_at timestamptz default now()
 );
 
+-- PUSH SUBSCRIPTIONS ----------------------------------------------------
+create table if not exists push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  endpoint text unique not null,
+  keys jsonb not null,
+  created_at timestamptz default now()
+);
+
 -- DEADLINES ----------------------------------------------------
 create table if not exists deadlines (
   id uuid primary key default gen_random_uuid(),
@@ -105,6 +116,7 @@ create table if not exists deadlines (
   title text not null,
   course_code text,
   due_date timestamptz not null,
+  reminded_at timestamptz,
   created_at timestamptz default now()
 );
 
@@ -211,6 +223,7 @@ alter table deadlines enable row level security;
 alter table quiz_answers enable row level security;
 alter table study_rooms enable row level security;
 alter table room_members enable row level security;
+alter table push_subscriptions enable row level security;
 
 create policy "own profile read" on profiles for select using (auth.uid() = id);
 create policy "own profile update" on profiles for update using (auth.uid() = id);
@@ -252,6 +265,10 @@ create policy "members can view their own rooms roster" on room_members for sele
 );
 create policy "users can join rooms as themselves" on room_members for insert with check (auth.uid() = user_id);
 create policy "users can leave rooms" on room_members for delete using (auth.uid() = user_id);
+
+create policy "own push subs read" on push_subscriptions for select using (auth.uid() = user_id);
+create policy "own push subs insert" on push_subscriptions for insert with check (auth.uid() = user_id);
+create policy "own push subs delete" on push_subscriptions for delete using (auth.uid() = user_id);
 
 -- ============================================================
 -- STORAGE POLICIES for the 'avatars' bucket

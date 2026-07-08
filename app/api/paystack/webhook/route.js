@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createAdminClient } from "@/lib/supabase/server";
+import { sendPushToUser } from "@/lib/webpush";
 
 const REFERRAL_BONUS_KOBO = 150000; // ₦1,500
 
@@ -43,10 +44,6 @@ export async function POST(req) {
     .from("referrals").select("*").eq("referred_id", userId).eq("status", "signed_up").maybeSingle();
 
   if (referral) {
-    await admin.from("wallets")
-      .update({ balance_kobo: admin.rpc ? undefined : undefined }) // placeholder, real increment below
-      .eq("user_id", referral.referrer_id);
-
     // safe increment via read-modify-write (fine at this scale; move to a DB function at higher volume)
     const { data: wallet } = await admin.from("wallets").select("balance_kobo").eq("user_id", referral.referrer_id).single();
     await admin.from("wallets").update({
@@ -60,6 +57,12 @@ export async function POST(req) {
     });
 
     await admin.from("referrals").update({ status: "credited", credited_at: new Date().toISOString() }).eq("id", referral.id);
+
+    sendPushToUser(admin, referral.referrer_id, {
+      title: "You just earned ₦1,500! 🎉",
+      body: "Someone you invited just went Premium. Check your wallet.",
+      url: "/wallet"
+    }).catch(() => {});
   }
 
   return NextResponse.json({ ok: true });

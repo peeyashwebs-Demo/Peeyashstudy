@@ -90,6 +90,23 @@ You'll need [Node.js](https://nodejs.org) installed (get the LTS version) and a 
 
 ---
 
+## Step 4.5 — Push notifications (already generated for you)
+
+Real VAPID keys were generated specifically for this project — just paste them into Vercel's environment variables:
+
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` = `BLqmcyrfEKjGkvHnkk0gKaLb8xJXvxzx6Z7fhzYFDEsSjvjA1He2seKkH_jc2Nay80u2PNIXcckLP4tEe4K3IZ8`
+- `VAPID_PRIVATE_KEY` = `X4kFfg3V_x-e7sGuzrcvi9e5Q12GAYJwP5Fvw8kA8_Q`
+- `VAPID_SUBJECT` = `mailto:` followed by your real email, e.g. `mailto:you@gmail.com`
+- `CRON_SECRET` = any random string you make up (e.g. mash your keyboard) — this just stops strangers from triggering your reminder job manually.
+
+These power: the "Turn on notifications" toggle in Settings, a push the moment someone's referral bonus lands, and a daily automatic check (`vercel.json` already configures this to run every morning at 8am) that reminds students about deadlines within 48 hours.
+
+**One extra Supabase step for these new features:** if your database already existed before this update, run this in the SQL Editor:
+```sql
+alter table deadlines add column if not exists reminded_at timestamptz;
+```
+(then also run the `push_subscriptions` table + its RLS policies from the bottom sections of `schema.sql`, same as the migration note at the top of that file explains).
+
 ## Step 5 — Deploy to Vercel (put it on the internet)
 
 1. Push this project to a GitHub repository (create a free GitHub account if you don't have one; GitHub Desktop is the easiest way if you're not comfortable with git commands).

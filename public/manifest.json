@@ -1,0 +1,15 @@
+{
+  "name": "PeeyashStudy",
+  "short_name": "PeeyashStudy",
+  "description": "Understand your assignments, don't just submit them. For MIVA & NOUN students.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#FBFAF6",
+  "theme_color": "#15214B",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
