@@ -61,9 +61,10 @@ export default function Rooms() {
       <Nav authed />
       <main className="max-w-2xl mx-auto px-5 py-10">
         <h1 className="font-display text-2xl font-semibold mb-2">Study rooms</h1>
-        <p className="text-sm text-ink/60 mb-6">
+        <p className="text-sm text-ink/60 mb-1">
           Pool quiz results with your course mates and see which concepts the group keeps missing.
         </p>
+        <p className="text-xs text-ink/40 mb-6">Free plan: 1 room · Premium: unlimited</p>
 
         <div className="flex gap-2 mb-6">
           <button onClick={() => setMode(mode === "create" ? null : "create")}

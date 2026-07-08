@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { isPremium } from "@/lib/usage";
+
+const FREE_ROOM_LIMIT = 1;
 
 function generateCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no ambiguous chars (0/O, 1/I)
@@ -17,6 +20,17 @@ export async function POST(req) {
   if (!name?.trim()) return NextResponse.json({ error: "Give your room a name." }, { status: 400 });
 
   const admin = createAdminClient();
+  const { data: profile } = await admin.from("profiles").select("*").eq("id", user.id).single();
+
+  if (!isPremium(profile)) {
+    const { count } = await admin.from("room_members").select("*", { count: "exact", head: true }).eq("user_id", user.id);
+    if ((count || 0) >= FREE_ROOM_LIMIT) {
+      return NextResponse.json(
+        { error: `Free plan allows ${FREE_ROOM_LIMIT} study room. Upgrade to Premium to join or create unlimited rooms.` },
+        { status: 429 }
+      );
+    }
+  }
 
   let inviteCode, attempts = 0;
   do {
