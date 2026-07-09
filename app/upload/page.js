@@ -37,11 +37,14 @@ export default function UploadPage() {
         <h1 className="font-display text-2xl font-semibold mb-2">Upload an assignment</h1>
         <p className="text-sm text-ink/60 mb-6">PDF works best. We'll break down every question — never write it for you.</p>
 
-        <form onSubmit={onSubmit} className="border border-dashed border-line rounded-2xl p-8 text-center">
+        <form onSubmit={onSubmit} className="border border-dashed border-line rounded-2xl p-6 sm:p-8 text-center">
           <input type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files[0])}
-            className="block w-full text-sm mb-4" />
+            className="block w-full text-sm mb-4 text-ink/60
+              file:mr-3 file:mb-2 file:py-2.5 file:px-4 file:rounded-full file:border-0
+              file:bg-ink file:text-paper file:text-sm file:font-medium
+              hover:file:bg-biro file:transition-colors file:cursor-pointer cursor-pointer" />
           <button disabled={!file || loading}
-            className="bg-ink text-paper px-6 py-3 rounded-full text-sm font-medium hover:bg-biro transition-colors disabled:opacity-40">
+            className="w-full sm:w-auto bg-ink text-paper px-6 py-3.5 sm:py-3 rounded-full text-sm font-medium hover:bg-biro transition-colors disabled:opacity-40">
             {loading ? "Reading your assignment… (up to 30s)" : "Decode this assignment"}
           </button>
         </form>

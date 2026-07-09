@@ -40,7 +40,7 @@ export default async function Dashboard() {
 
         <DeadlineCountdown />
 
-        <div className="grid md:grid-cols-3 gap-4 mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
           <Link href="/wallet" className="border border-line rounded-2xl p-5 hover:border-biro transition-colors">
             <p className="text-xs font-mono uppercase text-ink/50 mb-1">Wallet</p>
             <p className="font-display text-2xl font-semibold"><Naira amount={(wallet?.balance_kobo || 0) / 100} /></p>
@@ -55,12 +55,12 @@ export default async function Dashboard() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-wrap gap-3">
-          <Link href="/upload" className="bg-ink text-paper px-5 py-3 rounded-full text-sm font-medium hover:bg-biro transition-colors">Upload an assignment</Link>
-          <Link href="/worked-example" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Worked example</Link>
-          <Link href="/practice" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Practice quiz</Link>
-          <Link href="/refer" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Invite &amp; earn</Link>
-          <Link href="/rooms" className="border border-line px-5 py-3 rounded-full text-sm font-medium hover:border-biro transition-colors">Study rooms</Link>
+        <div className="mt-10 grid grid-cols-2 sm:flex sm:flex-wrap gap-3">
+          <Link href="/upload" className="bg-ink text-paper px-5 py-3.5 sm:py-3 rounded-xl sm:rounded-full text-sm font-medium text-center hover:bg-biro transition-colors">Upload assignment</Link>
+          <Link href="/worked-example" className="border border-line px-5 py-3.5 sm:py-3 rounded-xl sm:rounded-full text-sm font-medium text-center hover:border-biro transition-colors">Worked example</Link>
+          <Link href="/practice" className="border border-line px-5 py-3.5 sm:py-3 rounded-xl sm:rounded-full text-sm font-medium text-center hover:border-biro transition-colors">Practice quiz</Link>
+          <Link href="/refer" className="border border-line px-5 py-3.5 sm:py-3 rounded-xl sm:rounded-full text-sm font-medium text-center hover:border-biro transition-colors">Invite &amp; earn</Link>
+          <Link href="/rooms" className="col-span-2 sm:col-auto border border-line px-5 py-3.5 sm:py-3 rounded-xl sm:rounded-full text-sm font-medium text-center hover:border-biro transition-colors">Study rooms</Link>
         </div>
 
         <div className="mt-10">
@@ -68,9 +68,9 @@ export default async function Dashboard() {
           {uploads?.length ? (
             <ul className="divide-y divide-line border border-line rounded-xl overflow-hidden">
               {uploads.map((u, i) => (
-                <li key={i} className="px-4 py-3 text-sm flex justify-between">
-                  <span>{u.original_name}</span>
-                  <span className="text-ink/40 font-mono text-xs">{new Date(u.created_at).toLocaleDateString()}</span>
+                <li key={i} className="px-4 py-3 text-sm flex justify-between items-center gap-3">
+                  <span className="truncate min-w-0">{u.original_name}</span>
+                  <span className="text-ink/40 font-mono text-xs shrink-0 whitespace-nowrap">{new Date(u.created_at).toLocaleDateString()}</span>
                 </li>
               ))}
             </ul>

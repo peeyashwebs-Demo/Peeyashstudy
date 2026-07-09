@@ -116,7 +116,7 @@ export default function Practice() {
               </div>
             ))}
             {!submitted ? (
-              <button onClick={submit} className="bg-ink text-paper px-6 py-3 rounded-full text-sm font-medium hover:bg-biro transition-colors">Submit answers</button>
+              <button onClick={submit} className="w-full sm:w-auto bg-ink text-paper px-6 py-3.5 sm:py-3 rounded-full text-sm font-medium hover:bg-biro transition-colors">Submit answers</button>
             ) : (
               <>
                 <p className="font-display text-xl mb-4">You scored {score()} / {quiz.questions.length}</p>

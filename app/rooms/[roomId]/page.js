@@ -83,9 +83,9 @@ export default function RoomDetail() {
           <div className="space-y-3 mb-8">
             {weakSpots.map((w, i) => (
               <div key={i} className="border border-line rounded-xl p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <p className="text-sm font-medium">{w.concept}</p>
-                  <p className="text-xs text-ink/50">
+                <div className="flex justify-between items-center gap-3 mb-2">
+                  <p className="text-sm font-medium truncate min-w-0">{w.concept}</p>
+                  <p className="text-xs text-ink/50 shrink-0 whitespace-nowrap">
                     {w.membersStruggling} of {members.length} struggling
                   </p>
                 </div>

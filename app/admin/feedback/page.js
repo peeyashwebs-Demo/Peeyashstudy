@@ -29,7 +29,7 @@ export default async function AdminFeedback() {
         <Link href="/admin" className="text-sm text-ink/50 hover:text-biro">← Admin</Link>
         <h1 className="font-display text-2xl font-semibold mt-2 mb-8">Feedback</h1>
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div className="border border-line rounded-xl p-4">
             <p className="text-xs font-mono uppercase text-ink/50 mb-1">Total responses</p>
             <p className="font-display text-2xl font-semibold">{total}</p>

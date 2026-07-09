@@ -92,11 +92,11 @@ export default function Rooms() {
         )}
 
         {mode === "join" && (
-          <form onSubmit={joinRoom} className="border border-line rounded-2xl p-4 mb-6 flex gap-2">
+          <form onSubmit={joinRoom} className="border border-line rounded-2xl p-4 mb-6 flex flex-col sm:flex-row gap-2">
             <input required placeholder="6-character invite code" value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-              className="flex-1 border border-line rounded-lg px-3 py-2.5 text-base sm:text-sm font-mono tracking-widest focus-ring" />
-            <button disabled={busy} className="bg-ink text-paper px-5 rounded-lg text-sm font-medium hover:bg-biro transition-colors">
+              className="w-full sm:flex-1 min-w-0 border border-line rounded-lg px-3 py-2.5 text-base sm:text-sm font-mono tracking-widest focus-ring" />
+            <button disabled={busy} className="w-full sm:w-auto shrink-0 bg-ink text-paper px-5 py-2.5 sm:py-0 rounded-lg text-sm font-medium hover:bg-biro transition-colors">
               {busy ? "…" : "Join"}
             </button>
           </form>

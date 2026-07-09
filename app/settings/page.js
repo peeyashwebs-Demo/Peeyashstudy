@@ -158,10 +158,10 @@ export default function Settings() {
         {/* Name */}
         <form onSubmit={saveName} className="border border-line rounded-2xl p-5 mb-4">
           <p className="text-sm font-medium mb-3">Full name</p>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input value={name} onChange={(e) => setName(e.target.value)}
-              className="flex-1 border border-line rounded-lg px-4 py-2.5 text-base sm:text-sm focus-ring" />
-            <button className="bg-ink text-paper px-4 rounded-lg text-sm font-medium hover:bg-biro transition-colors">Save</button>
+              className="w-full sm:flex-1 min-w-0 border border-line rounded-lg px-4 py-2.5 text-base sm:text-sm focus-ring" />
+            <button className="w-full sm:w-auto shrink-0 bg-ink text-paper px-4 py-2.5 sm:py-0 rounded-lg text-sm font-medium hover:bg-biro transition-colors">Save</button>
           </div>
         </form>
 
@@ -169,10 +169,10 @@ export default function Settings() {
         <form onSubmit={saveEmail} className="border border-line rounded-2xl p-5 mb-4">
           <p className="text-sm font-medium mb-1">Email</p>
           <p className="text-xs text-ink/50 mb-3">Changing this sends a confirmation link to the new address.</p>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 border border-line rounded-lg px-4 py-2.5 text-base sm:text-sm focus-ring" />
-            <button className="bg-ink text-paper px-4 rounded-lg text-sm font-medium hover:bg-biro transition-colors">Save</button>
+              className="w-full sm:flex-1 min-w-0 border border-line rounded-lg px-4 py-2.5 text-base sm:text-sm focus-ring" />
+            <button className="w-full sm:w-auto shrink-0 bg-ink text-paper px-4 py-2.5 sm:py-0 rounded-lg text-sm font-medium hover:bg-biro transition-colors">Save</button>
           </div>
         </form>
 
@@ -182,11 +182,11 @@ export default function Settings() {
         {/* Password */}
         <form onSubmit={savePassword} className="border border-line rounded-2xl p-5 mb-4">
           <p className="text-sm font-medium mb-3">Change password</p>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input type="password" placeholder="New password (6+ characters)" value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="flex-1 border border-line rounded-lg px-4 py-2.5 text-base sm:text-sm focus-ring" />
-            <button className="bg-ink text-paper px-4 rounded-lg text-sm font-medium hover:bg-biro transition-colors">Update</button>
+              className="w-full sm:flex-1 min-w-0 border border-line rounded-lg px-4 py-2.5 text-base sm:text-sm focus-ring" />
+            <button className="w-full sm:w-auto shrink-0 bg-ink text-paper px-4 py-2.5 sm:py-0 rounded-lg text-sm font-medium hover:bg-biro transition-colors">Update</button>
           </div>
         </form>
 
@@ -217,12 +217,12 @@ export default function Settings() {
           ) : (
             <div>
               <p className="text-xs text-ink/60 mb-2">Type <span className="font-mono font-semibold">DELETE</span> to confirm.</p>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)}
                   placeholder="DELETE"
-                  className="flex-1 border border-red-200 rounded-lg px-3 py-2 text-base sm:text-sm focus-ring" />
+                  className="w-full sm:flex-1 min-w-0 border border-red-200 rounded-lg px-3 py-2.5 sm:py-2 text-base sm:text-sm focus-ring" />
                 <button onClick={deleteAccount} disabled={deleteConfirmText !== "DELETE" || deleting}
-                  className="bg-red-600 text-paper px-4 rounded-lg text-sm font-medium disabled:opacity-40 hover:bg-red-700 transition-colors">
+                  className="w-full sm:w-auto shrink-0 bg-red-600 text-paper px-4 py-2.5 sm:py-2 rounded-lg text-sm font-medium disabled:opacity-40 hover:bg-red-700 transition-colors">
                   {deleting ? "Deleting…" : "Confirm delete"}
                 </button>
               </div>

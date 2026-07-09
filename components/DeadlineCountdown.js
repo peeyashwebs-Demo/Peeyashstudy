@@ -68,14 +68,14 @@ export default function DeadlineCountdown() {
     <div className="mb-6">
       {next ? (
         <div className={`rounded-2xl p-5 mb-3 ${timeLeft(next.due_date).urgent ? "bg-red-50 border border-red-200" : "bg-ink text-paper"}`}>
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
               <p className={`text-xs font-mono uppercase mb-1 ${timeLeft(next.due_date).urgent ? "text-red-500" : "text-paper/60"}`}>
                 {next.course_code || "Next deadline"}
               </p>
-              <p className={`font-medium text-sm ${timeLeft(next.due_date).urgent ? "text-red-800" : "text-paper"}`}>{next.title}</p>
+              <p className={`font-medium text-sm truncate ${timeLeft(next.due_date).urgent ? "text-red-800" : "text-paper"}`}>{next.title}</p>
             </div>
-            <p className={`font-display text-xl font-semibold shrink-0 ml-3 ${timeLeft(next.due_date).urgent ? "text-red-600" : "text-high"}`}>
+            <p className={`font-display text-lg sm:text-xl font-semibold shrink-0 whitespace-nowrap ${timeLeft(next.due_date).urgent ? "text-red-600" : "text-high"}`}>
               {timeLeft(next.due_date).label}
             </p>
           </div>
@@ -89,9 +89,9 @@ export default function DeadlineCountdown() {
       {upcoming.length > 1 && (
         <div className="space-y-1.5 mb-3">
           {upcoming.slice(1).map((d) => (
-            <div key={d.id} className="flex justify-between items-center text-xs text-ink/50 px-1">
-              <span>{d.title}</span>
-              <span className="flex items-center gap-2">
+            <div key={d.id} className="flex justify-between items-center gap-2 text-xs text-ink/50 px-1">
+              <span className="truncate min-w-0">{d.title}</span>
+              <span className="flex items-center gap-2 shrink-0 whitespace-nowrap">
                 {timeLeft(d.due_date).label}
                 <button onClick={() => remove(d.id)} className="text-ink/30 hover:text-red-500" aria-label="Remove">×</button>
               </span>
@@ -107,13 +107,13 @@ export default function DeadlineCountdown() {
           <input required placeholder="Assignment title (e.g. MCM102 TMA)" value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="w-full border border-line rounded-lg px-3 py-2.5 text-base sm:text-sm focus-ring" />
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input placeholder="Course code (optional)" value={form.course_code}
               onChange={(e) => setForm({ ...form, course_code: e.target.value })}
-              className="flex-1 border border-line rounded-lg px-3 py-2.5 text-base sm:text-sm focus-ring" />
+              className="w-full sm:flex-1 min-w-0 border border-line rounded-lg px-3 py-2.5 text-base sm:text-sm focus-ring" />
             <input required type="datetime-local" value={form.due_date}
               onChange={(e) => setForm({ ...form, due_date: e.target.value })}
-              className="flex-1 border border-line rounded-lg px-3 py-2.5 text-base sm:text-sm focus-ring" />
+              className="w-full sm:flex-1 min-w-0 border border-line rounded-lg px-3 py-2.5 text-base sm:text-sm focus-ring" />
           </div>
           <div className="flex gap-2">
             <button className="bg-ink text-paper px-4 py-2 rounded-lg text-sm font-medium hover:bg-biro transition-colors">Save</button>

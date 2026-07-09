@@ -42,9 +42,9 @@ export default async function Wallet() {
           {txns?.length ? (
             <ul className="divide-y divide-line border border-line rounded-xl overflow-hidden">
               {txns.map((t) => (
-                <li key={t.id} className="px-4 py-3 text-sm flex justify-between">
-                  <span className="capitalize">{t.type.replaceAll("_", " ")}</span>
-                  <span className={t.amount_kobo >= 0 ? "text-leaf" : "text-ink/60"}>
+                <li key={t.id} className="px-4 py-3 text-sm flex justify-between items-center gap-3">
+                  <span className="capitalize truncate min-w-0">{t.type.replaceAll("_", " ")}</span>
+                  <span className={`shrink-0 whitespace-nowrap ${t.amount_kobo >= 0 ? "text-leaf" : "text-ink/60"}`}>
                     {t.amount_kobo >= 0 ? "+" : ""}<Naira amount={t.amount_kobo / 100} />
                   </span>
                 </li>

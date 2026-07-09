@@ -75,14 +75,14 @@ export default function PushOptIn() {
   return (
     <div className="border border-line rounded-2xl p-5 mb-4">
       <div className="flex items-center justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-medium">Push notifications</p>
           <p className="text-xs text-ink/50 mt-0.5">Deadline reminders, referral bonuses, and room activity.</p>
         </div>
         <button
           onClick={subscribed ? disable : enable}
           disabled={loading}
-          className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+          className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
             subscribed ? "border border-line hover:border-red-300 hover:text-red-600" : "bg-ink text-paper hover:bg-biro"
           }`}
         >

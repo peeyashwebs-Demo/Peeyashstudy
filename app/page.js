@@ -32,7 +32,7 @@ export default function Home() {
         <section id="how" className="border-t border-line bg-ink text-paper">
           <div className="max-w-5xl mx-auto px-5 py-16 md:py-20">
             <p className="font-mono text-xs tracking-widest uppercase text-high mb-4">What happens to your PDF</p>
-            <div className="grid md:grid-cols-4 gap-8 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mt-8">
               {[
                 ["Decode", "Every question, unpacked: what it's really asking, the concepts behind it, a structure to build your own answer on."],
                 ["Explain", "Ask anything against your own course material — get answers in plain English, not lecturer-speak."],
@@ -55,7 +55,7 @@ export default function Home() {
 
         {/* REFERRAL */}
         <section className="max-w-5xl mx-auto px-5 py-16 md:py-20">
-          <div className="grid md:grid-cols-2 gap-10 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
             <div>
               <p className="font-mono text-xs tracking-widest uppercase text-biro mb-4">Refer your course group</p>
               <h2 className="font-display text-3xl font-semibold mb-4">Five paid referrals covers your subscription.</h2>
@@ -79,7 +79,7 @@ export default function Home() {
 
         {/* PRICING */}
         <section className="border-t border-line">
-          <div className="max-w-5xl mx-auto px-6 sm:px-5 py-14 md:py-20 grid md:grid-cols-2 gap-5 md:gap-6">
+          <div className="max-w-5xl mx-auto px-6 sm:px-5 py-14 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             <div className="border border-line rounded-2xl p-6 sm:p-7">
               <p className="font-mono text-xs uppercase text-ink/50 mb-2">Free</p>
               <p className="font-display text-3xl font-semibold mb-5"><Naira amount={0} /></p>

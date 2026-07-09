@@ -9,7 +9,7 @@ export default function AdminFeedbackLoading() {
         <Skel className="h-4 w-20 mb-2" />
         <Skel className="h-7 w-32 mb-8" />
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <SkelCard /><SkelCard /><SkelCard />
         </div>
 

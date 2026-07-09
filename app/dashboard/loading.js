@@ -9,7 +9,7 @@ export default function DashboardLoading() {
         <Skel className="h-7 w-56 mb-2" />
         <Skel className="h-4 w-32 mb-8" />
 
-        <div className="grid md:grid-cols-3 gap-4 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
           <SkelCard /><SkelCard /><SkelCard />
         </div>
 
