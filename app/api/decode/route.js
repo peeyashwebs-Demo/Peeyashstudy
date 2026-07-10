@@ -32,21 +32,43 @@ export async function POST(req) {
 
   const formData = await req.formData();
   const file = formData.get("file");
-  if (!file) return NextResponse.json({ error: "No file received." }, { status: 400 });
+  const rawText = formData.get("rawText");
 
-  const buffer = Buffer.from(await file.arrayBuffer());
   let text;
-  try {
-    text = await extractText(buffer);
-  } catch {
-    return NextResponse.json({ error: "Couldn't read that PDF. Try a text-based PDF, not a scanned photo." }, { status: 400 });
+  let sourceName;
+  let isTyped = false;
+
+  if (file) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    try {
+      text = await extractText(buffer);
+    } catch {
+      return NextResponse.json({ error: "Couldn't read that PDF. Try a text-based PDF, not a scanned photo." }, { status: 400 });
+    }
+    sourceName = file.name;
+  } else if (rawText && rawText.trim().length > 0) {
+    text = rawText.trim();
+    isTyped = true;
+    sourceName = text.slice(0, 60).replace(/\s+/g, " ") + (text.length > 60 ? "…" : "");
+  } else {
+    return NextResponse.json({ error: "Upload a PDF or paste/type your assignment text." }, { status: 400 });
   }
-  const quality = assessExtractionQuality(text);
-  if (!quality.ok) {
-    return NextResponse.json(
-      { error: QUALITY_ERROR_MESSAGES[quality.reason] || "We couldn't read this PDF cleanly. Try re-uploading." },
-      { status: 400 }
-    );
+
+  if (isTyped) {
+    // Typed/pasted text is inherently clean — no OCR or extraction garbling risk.
+    // Only check it isn't empty; skip the PDF-oriented heuristics (they'd wrongly
+    // reject short-but-valid input like a single math equation).
+    if (text.length < 8) {
+      return NextResponse.json({ error: "That looks too short — paste or type the full question." }, { status: 400 });
+    }
+  } else {
+    const quality = assessExtractionQuality(text);
+    if (!quality.ok) {
+      return NextResponse.json(
+        { error: QUALITY_ERROR_MESSAGES[quality.reason] || "We couldn't read this PDF cleanly. Try re-uploading." },
+        { status: 400 }
+      );
+    }
   }
 
   const cacheKey = hashText(text);
@@ -73,7 +95,7 @@ export async function POST(req) {
   await admin.from("uploads").insert({
     user_id: user.id,
     cache_key: cacheKey,
-    original_name: file.name
+    original_name: sourceName
   });
 
   return NextResponse.json({ cacheKey, breakdown });
