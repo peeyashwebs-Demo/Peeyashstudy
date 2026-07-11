@@ -8,13 +8,21 @@ export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
 
-  if (code) {
-    const supabase = createClient();
-    await supabase.auth.exchangeCodeForSession(code);
-    // Sign out immediately — we want them to land on a clean login screen and log in
-    // deliberately, not get silently auto-logged-in straight to the dashboard.
-    await supabase.auth.signOut();
+  if (!code) {
+    return NextResponse.redirect(`${origin}/login?confirmed=false&reason=missing_code`);
   }
+
+  const supabase = createClient();
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    console.error("Email confirmation exchange failed:", error);
+    return NextResponse.redirect(`${origin}/login?confirmed=false&reason=${encodeURIComponent(error.message)}`);
+  }
+
+  // Sign out immediately — we want them to land on a clean login screen and log in
+  // deliberately, not get silently auto-logged-in straight to the dashboard.
+  await supabase.auth.signOut();
 
   return NextResponse.redirect(`${origin}/login?confirmed=true`);
 }
