@@ -26,6 +26,9 @@ export async function POST() {
     })
   });
   const data = await res.json();
-  if (data.status !== "success") return NextResponse.json({ error: "Could not start payment." }, { status: 500 });
+  if (data.status !== "success") {
+    console.error("Flutterwave init failed:", data);
+    return NextResponse.json({ error: data.message || "Could not start payment.", details: data }, { status: 500 });
+  }
   return NextResponse.json({ url: data.data.link });
 }
