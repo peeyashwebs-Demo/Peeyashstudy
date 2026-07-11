@@ -1,32 +1,31 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import { createAdminClient } from "@/lib/supabase/server";
 import { sendPushToUser } from "@/lib/webpush";
 
-const REFERRAL_BONUS_KOBO = 150000; // ₦1,500
+const REFERRAL_BONUS_NAIRA = 1500; // ₦1,500
 
 export async function POST(req) {
-  const rawBody = await req.text();
-  const signature = req.headers.get("x-paystack-signature");
-  const expected = crypto
-    .createHmac("sha512", process.env.PAYSTACK_SECRET_KEY)
-    .update(rawBody)
-    .digest("hex");
-  if (signature !== expected) {
+  // Flutterwave signs webhooks with a plain secret-hash string you set in the
+  // Flutterwave dashboard (Settings → Webhooks) — NOT an HMAC like Paystack.
+  // Store that same value as FLUTTERWAVE_SECRET_HASH in your env vars.
+  const signature = req.headers.get("verif-hash");
+  if (!signature || signature !== process.env.FLUTTERWAVE_SECRET_HASH) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  const event = JSON.parse(rawBody);
-  if (event.event !== "charge.success") return NextResponse.json({ ok: true });
+  const event = await req.json();
+  if (event.event !== "charge.completed" || event.data?.status !== "successful") {
+    return NextResponse.json({ ok: true });
+  }
 
-  const { metadata, reference, amount } = event.data;
-  const userId = metadata?.user_id;
+  const { meta, tx_ref, amount } = event.data;
+  const userId = meta?.user_id;
   if (!userId) return NextResponse.json({ ok: true });
 
   const admin = createAdminClient();
 
   // idempotency: skip if we've already recorded this reference
-  const { data: existing } = await admin.from("transactions").select("id").eq("reference", reference).maybeSingle();
+  const { data: existing } = await admin.from("transactions").select("id").eq("reference", tx_ref).maybeSingle();
   if (existing) return NextResponse.json({ ok: true });
 
   // 1. activate premium for 30 days
@@ -35,7 +34,7 @@ export async function POST(req) {
   await admin.from("profiles").update({ plan: "premium", plan_expires_at: expires.toISOString() }).eq("id", userId);
 
   await admin.from("transactions").insert({
-    user_id: userId, type: "subscription_payment", amount_kobo: -amount, reference,
+    user_id: userId, type: "subscription_payment", amount_kobo: -(amount * 100), reference: tx_ref,
     meta: { note: "Premium subscription activated" }
   });
 
@@ -44,16 +43,15 @@ export async function POST(req) {
     .from("referrals").select("*").eq("referred_id", userId).eq("status", "signed_up").maybeSingle();
 
   if (referral) {
-    // safe increment via read-modify-write (fine at this scale; move to a DB function at higher volume)
     const { data: wallet } = await admin.from("wallets").select("balance_kobo").eq("user_id", referral.referrer_id).single();
     await admin.from("wallets").update({
-      balance_kobo: (wallet?.balance_kobo || 0) + REFERRAL_BONUS_KOBO,
+      balance_kobo: (wallet?.balance_kobo || 0) + REFERRAL_BONUS_NAIRA * 100,
       updated_at: new Date().toISOString()
     }).eq("user_id", referral.referrer_id);
 
     await admin.from("transactions").insert({
-      user_id: referral.referrer_id, type: "referral_bonus", amount_kobo: REFERRAL_BONUS_KOBO,
-      reference, meta: { referred_id: userId }
+      user_id: referral.referrer_id, type: "referral_bonus", amount_kobo: REFERRAL_BONUS_NAIRA * 100,
+      reference: tx_ref, meta: { referred_id: userId }
     });
 
     await admin.from("referrals").update({ status: "credited", credited_at: new Date().toISOString() }).eq("id", referral.id);
