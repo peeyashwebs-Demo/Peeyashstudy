@@ -26,7 +26,11 @@ function SignupForm() {
       }
     });
     setLoading(false);
-    if (error) { setErr(error.message); return; }
+    if (error) {
+      console.error("Signup error:", error); // full detail in console for debugging
+      setErr(error.message || "Something went wrong. Please try again.");
+      return;
+    }
     router.push(`/check-email?email=${encodeURIComponent(form.email)}`);
   }
 
@@ -47,7 +51,9 @@ function SignupForm() {
           <input required type="password" autoComplete="new-password" minLength={6} placeholder="Password (6+ characters)" value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="w-full border border-line rounded-lg px-4 py-3.5 text-base sm:text-sm focus-ring" />
-          {err && <p className="text-sm text-red-600">{err}</p>}
+          {err && typeof err === "string" && err.trim() !== "{}" && (
+            <p className="text-sm text-red-600">{err}</p>
+          )}
           <button disabled={loading} className="w-full bg-ink text-paper rounded-full py-3.5 text-sm font-medium hover:bg-biro active:bg-biro transition-colors focus-ring disabled:opacity-60">
             {loading ? "Creating account…" : "Create account"}
           </button>
