@@ -2,21 +2,28 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-// Paystack appends ?trxref=xxx&reference=xxx to the callback URL automatically.
-// This silently confirms the payment the moment the user lands back on the dashboard —
-// a safety net in case the webhook hasn't fired yet (e.g. webhook URL not yet configured,
-// or a delay on Paystack's side).
+// Flutterwave appends ?status=successful&tx_ref=xxx&transaction_id=xxx to the
+// redirect URL automatically. This silently confirms the payment the moment the
+// user lands back on the dashboard — a safety net in case the webhook hasn't
+// fired yet (e.g. webhook URL not yet configured, or a delay on Flutterwave's side).
 export default function PaymentVerifier() {
   const router = useRouter();
   const params = useSearchParams();
   const [status, setStatus] = useState(null); // null | "checking" | "success" | "error"
 
   useEffect(() => {
-    const reference = params.get("reference") || params.get("trxref");
+    const reference = params.get("tx_ref");
+    const flwStatus = params.get("status");
     if (!reference) return;
 
+    // Flutterwave can redirect back with status=cancelled if the user backs out
+    if (flwStatus === "cancelled") {
+      router.replace("/dashboard");
+      return;
+    }
+
     setStatus("checking");
-    fetch("/api/paystack/verify", {
+    fetch("/api/flutterwave/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ reference })

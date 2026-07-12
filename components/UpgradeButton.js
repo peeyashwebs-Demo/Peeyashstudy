@@ -6,10 +6,11 @@ export default function UpgradeButton() {
   const [loading, setLoading] = useState(false);
   async function go() {
     setLoading(true);
-    const res = await fetch("/api/paystack/init", { method: "POST" });
+    const res = await fetch("/api/flutterwave/init", { method: "POST" });
     const data = await res.json();
     setLoading(false);
     if (data.url) window.location.href = data.url;
+    else console.error("Upgrade failed:", data);
   }
   return (
     <button onClick={go} disabled={loading}
