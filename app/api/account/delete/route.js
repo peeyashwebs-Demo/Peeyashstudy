@@ -22,6 +22,9 @@ export async function POST() {
     await admin.from("withdrawals").delete().eq("user_id", userId);
     await admin.from("feedback").delete().eq("user_id", userId);
     await admin.from("referrals").delete().or(`referrer_id.eq.${userId},referred_id.eq.${userId}`);
+    // study_rooms.created_by has no ON DELETE CASCADE — reassign or remove rooms
+    // this user created so the auth deletion below doesn't hit a foreign-key error.
+    await admin.from("study_rooms").delete().eq("created_by", userId);
 
     // Deleting the auth user cascades to profiles, which cascades to wallets,
     // uploads, quiz_attempts, and usage automatically.

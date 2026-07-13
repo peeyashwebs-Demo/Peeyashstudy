@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Naira from "@/components/Naira";
+import TypingHeadline from "@/components/TypingHeadline";
 
 export default function Home() {
   return (
@@ -10,9 +11,7 @@ export default function Home() {
         {/* HERO */}
         <section className="max-w-5xl mx-auto px-6 sm:px-5 pt-14 pb-16 md:pt-24 md:pb-28">
           <p className="font-mono text-xs tracking-widest uppercase text-biro mb-5">For MIVA &amp; NOUN students</p>
-          <h1 className="font-display text-[2.15rem] leading-[1.2] md:text-6xl md:leading-[1.05] font-semibold max-w-3xl">
-            Your TMA lands in your inbox.<br />Understanding it shouldn't take a week.
-          </h1>
+          <TypingHeadline />
           <p className="mt-6 text-base sm:text-lg text-ink/70 max-w-xl leading-relaxed">
             Upload the PDF. PeeyashStudy breaks down exactly what each question is asking,
             teaches you the concepts, drills you with a quiz, and reviews the answer <em>you</em> write —

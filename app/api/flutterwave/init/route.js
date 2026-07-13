@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// Initializes a Flutterwave transaction for the ₦5,000 monthly subscription.
+// Initializes a Flutterwave transaction for the monthly subscription.
+// TEMP: price set to ₦1,000 for live testing — see TODO below to revert.
 export async function POST() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -9,6 +10,9 @@ export async function POST() {
 
   // Unique reference for this transaction — Flutterwave requires one you generate.
   const tx_ref = `premium-${user.id}-${Date.now()}`;
+
+  // TODO: REVERT — change back to 5000 once live testing with ₦1,000 is done.
+  const SUBSCRIPTION_PRICE_NAIRA = 1000;
 
   const res = await fetch("https://api.flutterwave.com/v3/payments", {
     method: "POST",
@@ -18,7 +22,7 @@ export async function POST() {
     },
     body: JSON.stringify({
       tx_ref,
-      amount: 5000, // ₦5,000 — Flutterwave takes the amount in Naira, NOT kobo
+      amount: SUBSCRIPTION_PRICE_NAIRA, // ₦ — Flutterwave takes the amount in Naira, NOT kobo
       currency: "NGN",
       redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?checkout=1`,
       customer: { email: user.email },

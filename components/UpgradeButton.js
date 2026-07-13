@@ -15,7 +15,8 @@ export default function UpgradeButton() {
   return (
     <button onClick={go} disabled={loading}
       className="w-full bg-biro text-paper py-3 rounded-full text-sm font-medium hover:bg-ink transition-colors mb-6">
-      {loading ? "Starting checkout…" : <>Upgrade to Premium — <Naira amount="5,000" />/month</>}
+      {/* TODO: REVERT — change amount back to "5,000" once live testing with ₦1,000 is done. */}
+      {loading ? "Starting checkout…" : <>Upgrade to Premium — <Naira amount="1,000" />/month</>}
     </button>
   );
 }

@@ -17,7 +17,7 @@ function SignupForm() {
     e.preventDefault();
     setLoading(true); setErr("");
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
@@ -29,6 +29,13 @@ function SignupForm() {
     if (error) {
       console.error("Signup error:", error); // full detail in console for debugging
       setErr(error.message || "Something went wrong. Please try again.");
+      return;
+    }
+    // Supabase quirk: signing up with an email that already has a confirmed account
+    // does NOT return an error (this is intentional, to prevent account enumeration).
+    // Instead, it returns success but with an empty identities array — that's our signal.
+    if (data?.user && data.user.identities && data.user.identities.length === 0) {
+      setErr("An account already exists with this email. Try logging in instead.");
       return;
     }
     router.push(`/check-email?email=${encodeURIComponent(form.email)}`);
