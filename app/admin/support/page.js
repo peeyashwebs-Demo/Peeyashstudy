@@ -13,7 +13,9 @@ export default function AdminSupportPage() {
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
   const [unauthorized, setUnauthorized] = useState(false);
+  const [studentTyping, setStudentTyping] = useState(false);
   const bottomRef = useRef(null);
+  const lastTypingPingRef = useRef(0);
 
   async function loadList() {
     const res = await fetch("/api/admin/support");
@@ -27,6 +29,7 @@ export default function AdminSupportPage() {
     const res = await fetch(`/api/support/messages?conversationId=${id}`);
     const data = await res.json();
     setMessages(data.messages || []);
+    setStudentTyping(!!data.userTypingAt && Date.now() - new Date(data.userTypingAt).getTime() < 3000);
   }
 
   useEffect(() => {
@@ -38,17 +41,31 @@ export default function AdminSupportPage() {
   useEffect(() => {
     loadThread(activeId);
     if (!activeId) return;
-    const t = setInterval(() => loadThread(activeId), 4000);
+    const t = setInterval(() => loadThread(activeId), 2000);
     return () => clearInterval(t);
   }, [activeId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, studentTyping]);
 
   function openConversation(id) {
     setActiveId(id);
     router.replace(`/admin/support?id=${id}`);
+  }
+
+  function handleReplyChange(e) {
+    setReply(e.target.value);
+    if (!activeId) return;
+    const now = Date.now();
+    if (now - lastTypingPingRef.current > 2000) {
+      lastTypingPingRef.current = now;
+      fetch("/api/support/typing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId: activeId, as: "admin" })
+      }).catch(() => {});
+    }
   }
 
   async function sendReply(close = false) {
@@ -146,12 +163,20 @@ export default function AdminSupportPage() {
                       </div>
                     </div>
                   ))}
+                  {studentTyping && (
+                    <div className="flex justify-start">
+                      <div className="bg-biro/10 text-biro border border-biro/20 rounded-2xl px-3.5 py-2 text-sm flex items-center gap-1.5">
+                        <span className="text-[10px] font-mono uppercase">Student is typing</span>
+                        <TypingDots />
+                      </div>
+                    </div>
+                  )}
                   <div ref={bottomRef} />
                 </div>
                 <div className="border-t border-line p-3 flex gap-2">
                   <input
                     value={reply}
-                    onChange={(e) => setReply(e.target.value)}
+                    onChange={handleReplyChange}
                     onKeyDown={(e) => e.key === "Enter" && sendReply(false)}
                     placeholder="Reply as PeeyashStudy team…"
                     className="flex-1 border border-line rounded-full px-3.5 py-2 text-sm focus-ring"
@@ -170,5 +195,15 @@ export default function AdminSupportPage() {
         </div>
       </main>
     </>
+  );
+}
+
+function TypingDots() {
+  return (
+    <span className="flex gap-0.5 items-center">
+      <span className="w-1 h-1 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
+      <span className="w-1 h-1 rounded-full bg-current animate-bounce" style={{ animationDelay: "150ms" }} />
+      <span className="w-1 h-1 rounded-full bg-current animate-bounce" style={{ animationDelay: "300ms" }} />
+    </span>
   );
 }

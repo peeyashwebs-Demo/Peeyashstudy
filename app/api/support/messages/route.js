@@ -11,7 +11,12 @@ export async function GET(req) {
     .from("support_messages").select("*").eq("conversation_id", conversationId)
     .order("created_at", { ascending: true });
   const { data: conv } = await admin
-    .from("support_conversations").select("status").eq("id", conversationId).maybeSingle();
+    .from("support_conversations").select("status, user_typing_at, admin_typing_at").eq("id", conversationId).maybeSingle();
 
-  return NextResponse.json({ messages: messages || [], status: conv?.status || null });
+  return NextResponse.json({
+    messages: messages || [],
+    status: conv?.status || null,
+    userTypingAt: conv?.user_typing_at || null,
+    adminTypingAt: conv?.admin_typing_at || null
+  });
 }

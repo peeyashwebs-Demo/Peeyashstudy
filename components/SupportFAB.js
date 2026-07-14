@@ -28,9 +28,11 @@ export default function SupportFAB() {
   const [status, setStatus] = useState("ai");
   const [conversationId, setConversationId] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
+  const [adminTyping, setAdminTyping] = useState(false);
   const bottomRef = useRef(null);
   const pollRef = useRef(null);
   const menuRef = useRef(null);
+  const lastTypingPingRef = useRef(0);
 
   useEffect(() => {
     const supabase = createClient();
@@ -41,7 +43,7 @@ export default function SupportFAB() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, view]);
+  }, [messages, view, adminTyping]);
 
   // Close the popup menu on an outside click/tap
   useEffect(() => {
@@ -66,12 +68,28 @@ export default function SupportFAB() {
         const data = await res.json();
         if (data.messages) setMessages(data.messages);
         if (data.status) setStatus(data.status);
+        setAdminTyping(!!data.adminTypingAt && Date.now() - new Date(data.adminTypingAt).getTime() < 3000);
       } catch {}
     };
     poll();
-    pollRef.current = setInterval(poll, 4000);
+    pollRef.current = setInterval(poll, 2000);
     return () => clearInterval(pollRef.current);
   }, [view, conversationId]);
+
+  function handleInputChange(e) {
+    setInput(e.target.value);
+    if (!conversationId) return;
+    const now = Date.now();
+    // Only ping at most once every 2s to avoid spamming the server on every keystroke
+    if (now - lastTypingPingRef.current > 2000) {
+      lastTypingPingRef.current = now;
+      fetch("/api/support/typing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId, as: "user" })
+      }).catch(() => {});
+    }
+  }
 
   async function send(overrideText) {
     const raw = overrideText ?? input;
@@ -186,6 +204,14 @@ export default function SupportFAB() {
                 <div className="bg-line/50 text-ink/50 rounded-2xl px-3.5 py-2 text-sm">…</div>
               </div>
             )}
+            {adminTyping && !sending && (
+              <div className="flex justify-start">
+                <div className="bg-leaf/15 text-leaf border border-leaf/30 rounded-2xl px-3.5 py-2 text-sm flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono uppercase">Team is typing</span>
+                  <TypingDots />
+                </div>
+              </div>
+            )}
             <div ref={bottomRef} />
           </div>
 
@@ -199,7 +225,7 @@ export default function SupportFAB() {
               <div className="flex gap-2">
                 <input
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={handleInputChange}
                   onKeyDown={(e) => e.key === "Enter" && send()}
                   placeholder="Type a message…"
                   className="flex-1 border border-line rounded-full px-3.5 py-2.5 text-sm focus-ring min-w-0"
@@ -274,5 +300,15 @@ function FeedbackIcon() {
       <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"
         stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
+  );
+}
+
+function TypingDots() {
+  return (
+    <span className="flex gap-0.5 items-center">
+      <span className="w-1 h-1 rounded-full bg-current animate-bounce" style={{ animationDelay: "0ms" }} />
+      <span className="w-1 h-1 rounded-full bg-current animate-bounce" style={{ animationDelay: "150ms" }} />
+      <span className="w-1 h-1 rounded-full bg-current animate-bounce" style={{ animationDelay: "300ms" }} />
+    </span>
   );
 }
