@@ -244,15 +244,17 @@ export default function SupportFAB() {
         </div>
       )}
 
-      {/* SINGLE FAB */}
-      <button
-        onClick={() => setView((v) => (v === "closed" ? "menu" : "closed"))}
-        className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-ink text-paper shadow-lg flex items-center justify-center hover:bg-biro transition-colors"
-        style={{ marginBottom: "env(safe-area-inset-bottom)" }}
-        aria-label={view === "closed" ? "Open help menu" : "Close"}
-      >
-        {view === "closed" ? <HelpIcon /> : <span className="text-2xl leading-none">✕</span>}
-      </button>
+      {/* SINGLE FAB — hidden while the chat panel is open, since the panel has its own close button */}
+      {view !== "chat" && (
+        <button
+          onClick={() => setView((v) => (v === "closed" ? "menu" : "closed"))}
+          className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-ink text-paper shadow-lg flex items-center justify-center hover:bg-biro transition-colors"
+          style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+          aria-label={view === "closed" ? "Open help menu" : "Close"}
+        >
+          {view === "closed" ? <HelpIcon /> : <span className="text-2xl leading-none">✕</span>}
+        </button>
+      )}
     </>
   );
 }
