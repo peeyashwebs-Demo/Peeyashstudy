@@ -34,5 +34,5 @@ export async function POST() {
     console.error("Flutterwave init failed:", data);
     return NextResponse.json({ error: data.message || "Could not start payment.", details: data }, { status: 500 });
   }
-  return NextResponse.json({ url: data.data.link });
+  return NextResponse.json({ url: data.data.link, reference: tx_ref });
 }

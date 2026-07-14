@@ -4,23 +4,34 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 // Flutterwave appends ?status=successful&tx_ref=xxx&transaction_id=xxx to the
 // redirect URL automatically. This silently confirms the payment the moment the
-// user lands back on the dashboard — a safety net in case the webhook hasn't
-// fired yet (e.g. webhook URL not yet configured, or a delay on Flutterwave's side).
+// user lands back on the dashboard. As a further safety net — for cases where the
+// user reloads, closes the tab, or never lands back on the redirect URL at all —
+// this also checks localStorage for a pending reference stored right before
+// checkout, so the payment gets confirmed the next time they simply open the
+// dashboard normally. This does NOT depend on the webhook firing.
 export default function PaymentVerifier() {
   const router = useRouter();
   const params = useSearchParams();
   const [status, setStatus] = useState(null); // null | "checking" | "success" | "error"
 
   useEffect(() => {
-    const reference = params.get("tx_ref");
+    let reference = params.get("tx_ref");
     const flwStatus = params.get("status");
-    if (!reference) return;
+    const fromUrl = !!reference;
 
     // Flutterwave can redirect back with status=cancelled if the user backs out
-    if (flwStatus === "cancelled") {
+    if (fromUrl && flwStatus === "cancelled") {
+      localStorage.removeItem("pendingPaymentRef");
       router.replace("/dashboard");
       return;
     }
+
+    // No reference in the URL (e.g. user reloaded or came back later) —
+    // fall back to whatever we stored right before they went to checkout.
+    if (!reference) {
+      reference = localStorage.getItem("pendingPaymentRef");
+    }
+    if (!reference) return;
 
     setStatus("checking");
     fetch("/api/flutterwave/verify", {
@@ -30,12 +41,21 @@ export default function PaymentVerifier() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setStatus(data.ok ? "success" : "error");
-        // clean the URL so a refresh doesn't re-trigger verification
-        router.replace("/dashboard");
-        if (data.ok) router.refresh();
+        if (data.ok) {
+          setStatus("success");
+          localStorage.removeItem("pendingPaymentRef");
+          if (fromUrl) router.replace("/dashboard");
+          router.refresh();
+        } else if (fromUrl) {
+          setStatus("error");
+          router.replace("/dashboard");
+        } else {
+          // silent background retry from a stored reference — don't nag the
+          // user on every dashboard visit if it's genuinely still pending
+          setStatus(null);
+        }
       })
-      .catch(() => setStatus("error"));
+      .catch(() => { if (fromUrl) setStatus("error"); });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!status || status === null) return null;

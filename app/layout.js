@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Space_Grotesk, Newsreader, JetBrains_Mono } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import SupportWidget from "@/components/SupportWidget";
 
 const display = Newsreader({ subsets: ["latin"], variable: "--font-display", weight: ["500","600","700"] });
 const body = Space_Grotesk({ subsets: ["latin"], variable: "--font-body", weight: ["400","500","600"] });
@@ -54,6 +55,7 @@ export default function RootLayout({ children }) {
       <body className="bg-paper text-ink font-body antialiased">
         <ServiceWorkerRegister />
         {children}
+        <SupportWidget />
       </body>
     </html>
   );

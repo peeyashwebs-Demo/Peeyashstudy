@@ -9,8 +9,15 @@ export default function UpgradeButton() {
     const res = await fetch("/api/flutterwave/init", { method: "POST" });
     const data = await res.json();
     setLoading(false);
-    if (data.url) window.location.href = data.url;
-    else console.error("Upgrade failed:", data);
+    if (data.url) {
+      // Stored so the dashboard can auto-confirm this payment later even if the
+      // user closes the tab, reloads, or never lands back on the redirect URL —
+      // a safety net independent of the webhook.
+      if (data.reference) localStorage.setItem("pendingPaymentRef", data.reference);
+      window.location.href = data.url;
+    } else {
+      console.error("Upgrade failed:", data);
+    }
   }
   return (
     <button onClick={go} disabled={loading}
