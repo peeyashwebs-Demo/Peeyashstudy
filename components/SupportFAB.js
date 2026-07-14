@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 const QUICK_QUESTIONS = [
@@ -19,16 +20,17 @@ function getSessionId() {
   return id;
 }
 
-export default function SupportWidget() {
-  const [open, setOpen] = useState(false);
+export default function SupportFAB() {
+  const [view, setView] = useState("closed"); // closed | menu | chat
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [status, setStatus] = useState("ai"); // ai | waiting_human | human_active | closed
+  const [status, setStatus] = useState("ai");
   const [conversationId, setConversationId] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
   const bottomRef = useRef(null);
   const pollRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -39,10 +41,24 @@ export default function SupportWidget() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, open]);
+  }, [messages, view]);
+
+  // Close the popup menu on an outside click/tap
+  useEffect(() => {
+    if (view !== "menu") return;
+    function onClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setView("closed");
+    }
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("touchstart", onClick);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("touchstart", onClick);
+    };
+  }, [view]);
 
   useEffect(() => {
-    if (!open || !conversationId) return;
+    if (view !== "chat" || !conversationId) return;
     const poll = async () => {
       try {
         const res = await fetch(`/api/support/messages?conversationId=${conversationId}`);
@@ -55,7 +71,7 @@ export default function SupportWidget() {
     poll();
     pollRef.current = setInterval(poll, 4000);
     return () => clearInterval(pollRef.current);
-  }, [open, conversationId]);
+  }, [view, conversationId]);
 
   async function send(overrideText) {
     const raw = overrideText ?? input;
@@ -81,12 +97,7 @@ export default function SupportWidget() {
       const res = await fetch("/api/support/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId: activeConvoId,
-          message: text,
-          sessionId: getSessionId(),
-          forceHuman
-        })
+        body: JSON.stringify({ conversationId: activeConvoId, message: text, sessionId: getSessionId(), forceHuman })
       });
 
       let data;
@@ -127,14 +138,10 @@ export default function SupportWidget() {
 
   return (
     <>
-      {open && (
-        <div
-          className="fixed inset-0 sm:inset-auto sm:bottom-24 sm:right-5 z-50 sm:w-[380px] sm:h-[600px] sm:max-h-[75vh] bg-paper sm:border sm:border-line sm:rounded-2xl sm:shadow-2xl flex flex-col overflow-hidden"
-        >
-          <div
-            className="bg-ink text-paper px-4 py-3.5 flex items-center justify-between shrink-0"
-            style={{ paddingTop: "max(0.875rem, env(safe-area-inset-top))" }}
-          >
+      {/* CHAT PANEL */}
+      {view === "chat" && (
+        <div className="fixed inset-0 sm:inset-auto sm:bottom-24 sm:right-5 z-50 sm:w-[380px] sm:h-[600px] sm:max-h-[75vh] bg-paper sm:border sm:border-line sm:rounded-2xl sm:shadow-2xl flex flex-col overflow-hidden">
+          <div className="bg-ink text-paper px-4 py-3.5 flex items-center justify-between shrink-0" style={{ paddingTop: "max(0.875rem, env(safe-area-inset-top))" }}>
             <div>
               <p className="font-display font-semibold text-sm">PeeyashStudy Support</p>
               <p className="text-xs text-paper/60">
@@ -143,7 +150,7 @@ export default function SupportWidget() {
                 {(status === "ai" || !status) && "AI assistant · usually replies instantly"}
               </p>
             </div>
-            <button onClick={() => setOpen(false)} className="text-paper/70 hover:text-paper text-xl leading-none w-8 h-8 flex items-center justify-center -mr-1.5" aria-label="Close support chat">✕</button>
+            <button onClick={() => setView("closed")} className="text-paper/70 hover:text-paper text-xl leading-none w-8 h-8 flex items-center justify-center -mr-1.5" aria-label="Close support chat">✕</button>
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
@@ -154,11 +161,8 @@ export default function SupportWidget() {
                 </p>
                 <div className="flex flex-col gap-2">
                   {QUICK_QUESTIONS.map((q) => (
-                    <button
-                      key={q}
-                      onClick={() => send(q)}
-                      className="text-left text-sm border border-line rounded-xl px-3.5 py-2.5 hover:bg-line/20 hover:border-biro/40 transition-colors"
-                    >
+                    <button key={q} onClick={() => send(q)}
+                      className="text-left text-sm border border-line rounded-xl px-3.5 py-2.5 hover:bg-line/20 hover:border-biro/40 transition-colors">
                       {q}
                     </button>
                   ))}
@@ -188,10 +192,7 @@ export default function SupportWidget() {
           {status !== "closed" && (
             <div className="border-t border-line p-3 shrink-0" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
               {status === "ai" && messages.length > 0 && (
-                <button
-                  onClick={() => send("I'd like to talk to a real person, please.")}
-                  className="text-xs text-biro underline mb-2 block"
-                >
+                <button onClick={() => send("I'd like to talk to a real person, please.")} className="text-xs text-biro underline mb-2 block">
                   Talk to a real person instead
                 </button>
               )}
@@ -203,11 +204,8 @@ export default function SupportWidget() {
                   placeholder="Type a message…"
                   className="flex-1 border border-line rounded-full px-3.5 py-2.5 text-sm focus-ring min-w-0"
                 />
-                <button
-                  onClick={() => send()}
-                  disabled={sending || !input.trim()}
-                  className="bg-ink text-paper rounded-full px-4 text-sm font-medium disabled:opacity-40 shrink-0"
-                >
+                <button onClick={() => send()} disabled={sending || !input.trim()}
+                  className="bg-ink text-paper rounded-full px-4 text-sm font-medium disabled:opacity-40 shrink-0">
                   Send
                 </button>
               </div>
@@ -221,15 +219,58 @@ export default function SupportWidget() {
         </div>
       )}
 
-      {/* Positioned above the feedback button, not on top of it */}
+      {/* POPUP MENU */}
+      {view === "menu" && (
+        <div
+          ref={menuRef}
+          className="fixed bottom-[5.75rem] right-5 z-50 bg-paper border border-line rounded-2xl shadow-xl overflow-hidden w-56"
+          style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+        >
+          <button
+            onClick={() => setView("chat")}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-medium hover:bg-line/20 transition-colors text-left border-b border-line"
+          >
+            <span className="text-lg">💬</span> Chat with us
+          </button>
+          {userEmail && (
+            <Link
+              href="/feedback"
+              onClick={() => setView("closed")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-medium hover:bg-line/20 transition-colors text-left"
+            >
+              <FeedbackIcon /> Give feedback
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* SINGLE FAB */}
       <button
-        onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-24 right-5 z-50 w-14 h-14 rounded-full bg-ink text-paper shadow-lg flex items-center justify-center text-2xl hover:bg-biro transition-colors"
+        onClick={() => setView((v) => (v === "closed" ? "menu" : "closed"))}
+        className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-ink text-paper shadow-lg flex items-center justify-center hover:bg-biro transition-colors"
         style={{ marginBottom: "env(safe-area-inset-bottom)" }}
-        aria-label="Open support chat"
+        aria-label={view === "closed" ? "Open help menu" : "Close"}
       >
-        {open ? "✕" : "💬"}
+        {view === "closed" ? <HelpIcon /> : <span className="text-2xl leading-none">✕</span>}
       </button>
     </>
+  );
+}
+
+function HelpIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"
+        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function FeedbackIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"
+        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
